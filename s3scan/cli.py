@@ -1,7 +1,7 @@
 # cli.py
 import click
 from commands import list_buckets
-from s3scan.commands import get_acl
+from commands import get_acl
 
 @click.group()
 @click.option("--endpoint-url", default="http://localhost:4566", required=True, help="LocalStack endpoint")
