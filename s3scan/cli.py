@@ -1,7 +1,6 @@
 # cli.py
 import click
-from commands import list_buckets
-from commands import get_acl
+from commands import get_acl, get_cors, list_buckets
 
 @click.group()
 @click.option("--endpoint-url", default="http://localhost:4566", required=True, help="LocalStack endpoint")
@@ -21,6 +20,7 @@ def cli(ctx, endpoint_url, region, access_key_id, secret_access_key):
 # add commands
 cli.add_command(list_buckets.list_buckets)
 cli.add_command(get_acl.check_acl)  
+cli.add_command(get_cors.check_cors)
 
 if __name__ == "__main__":
     cli()

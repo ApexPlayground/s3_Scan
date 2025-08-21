@@ -14,15 +14,22 @@ def check_acl(ctx, bucket):
     )
      response = s3.get_bucket_acl(Bucket=bucket)
 
+     is_public = False
      for grant in response["Grants"]:
           grantee = grant["Grantee"]
           permission = grant["Permission"]
 
-          #conditions to check permissions
+       
           if grantee.get("Type") == "Group" and "AllUser" in grantee.get("URI", ""):
                click.echo(f"Bucket with name: {bucket} is PUBLIC with permission:{permission}")
-          else:
-            click.echo(f"Bucket {bucket} grant: {grantee} → {permission}")
+               click.echo(
+                    f"Suggestion: Set ACL to private using: aws s3api put-bucket-acl --bucket {bucket} --acl private"
+               )
+               is_public = True
+     
+     if not is_public:
+             click.echo(f"Bucket {bucket} appears to be PRIVATE ")
+
         
            
 
