@@ -62,6 +62,6 @@ def check_cors(ctx, bucket):
             
     
     except Exception as ex:
-         click.echo(f"Unexpected error:{ex}")
+        click.echo(f"Unexpected error:{ex}", fg="red", bold="True")
     
         
