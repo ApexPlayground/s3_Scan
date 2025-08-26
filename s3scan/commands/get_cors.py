@@ -1,6 +1,7 @@
 #check_cors.py
 import click
 import boto3
+import json
 
 @click.command()
 @click.option("--bucket", required=True, help="AWS s3 bucket to check")
@@ -15,7 +16,7 @@ def check_cors(ctx, bucket):
     try:
         response = s3.get_bucket_cors(Bucket=bucket)
         rules = response["CORSRules"]
-        click.echo(f"Rules set to your bucket\n{rules}")
+        click.echo(f"Rules set to your bucket\n{json.dumps(rules, indent=2)}")
         
         misconfigured = False
 
@@ -26,11 +27,32 @@ def check_cors(ctx, bucket):
             
             if allows_all_origins and allows_dangerous_methods:
                 misconfigured = True
-                click.echo("WARNING: Bucket allows dangerous methods from any origin!")
-                click.echo(
+                click.secho("WARNING: Bucket allows dangerous methods from any origin!", fg="red", bold="True")
+                click.secho(
                     "Suggestion: Restrict AllowedOrigins to your app or remove PUT/POST/DELETE "
-                    "if the bucket is meant to be public-read only."
+                    "if the bucket is meant to be public-read only.", fg="yellow"
                 )
+                click.echo(" ")
+            
+            # all headers allowed
+            if "*" in rule.get("AllowedHeaders", []):
+                misconfigured = True
+                click.secho("WARNING: All headers allowed!", fg="red", bold=True)
+                click.secho("Suggestion: Restrict AllowedHeaders to only what your app needs.", fg="yellow")
+                click.echo(" ")
+                
+            if "*" in rule.get("ExposeHeaders", []):
+                misconfigured = True
+                click.secho("WARNING: All headers exposed to client!", fg="red", bold=True)
+                click.echo(" ")
+            
+            # long max age
+            max_age = rule.get("MaxAgeSeconds", 0)
+            if max_age > 3600:  # example threshold
+                click.secho(f"NOTICE: MaxAgeSeconds is very high ({max_age})", fg="yellow")
+                click.echo(" ")
+
+
             
             # change flag to false
           

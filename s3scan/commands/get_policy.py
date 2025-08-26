@@ -39,7 +39,35 @@ def check_policy(ctx, bucket):
                     misconfigured = True
                     click.secho("WARNING: Public access with dangerous actions detected!", fg="red", bold="True")
                     click.secho("Suggestion: Remove '*' principal or restrict actions to least privilege.", fg="yellow")
-                
+                    click.echo(" ")
+
+            if principal == "*" and "s3:GetObject" in action:
+                misconfigured = True
+                click.secho("WARNING: Bucket objects are publicly readable!", fg="red", bold=True)
+                click.secho("Suggestion: Restrict read access to specific IAM users/roles.", fg="yellow")
+                click.echo(" ")
+                   
+            # all actions allowed 
+            if any(act in ["s3:*", "*"] for act in action):
+                misconfigured = True
+                click.secho("WARNING: Action allows ALL operations on S3!", fg="red", bold=True)
+                click.secho("Suggestion: Replace with specific actions needed (principle of least privilege).", fg="yellow")
+                click.echo(" ")
+
+            if any(res.endswith("/*") or res == "arn:aws:s3:::*" for res in resource):
+                misconfigured = True
+                click.secho("WARNING: Policy applies to ALL objects or ALL buckets.", fg="red", bold=True)
+                click.secho("Suggestion: If not intended, restrict to specific bucket paths.", fg="yellow")
+                click.echo(" ")
+            
+            if effect == "Allow" and "Condition" not in val:
+                click.secho("NOTICE: Policy allows access with no conditions.", fg="yellow")
+                click.echo(" ")
+            
+            if principal == "*" and "s3:ListBucket" in action:
+                misconfigured = True
+                click.secho("WARNING: Public can list all objects in this bucket!", fg="red", bold=True)
+                click.echo(" ")
             
         if not misconfigured:
             click.secho("policy configuration looks good", fg="green")

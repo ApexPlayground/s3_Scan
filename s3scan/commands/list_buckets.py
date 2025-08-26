@@ -15,5 +15,5 @@ def list_buckets(ctx ):
     
     response = s3.list_buckets()
     for bucket in response["Buckets"]:
-        click.echo(bucket["Name"])
+        click.secho(bucket["Name"], fg="green")
   
