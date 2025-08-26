@@ -2,6 +2,7 @@
 import click
 from commands import check_acl, check_cors, check_policy, check_versioning
 from commands import list_all_buckets
+from commands import audit
 
 @click.group()
 @click.option("--endpoint-url", default="http://localhost:4566", required=True, help="LocalStack endpoint")
@@ -24,6 +25,7 @@ cli.add_command(check_acl.check_acl)
 cli.add_command(check_cors.check_cors)
 cli.add_command(check_policy.check_policy)
 cli.add_command(check_versioning.check_versioning)
+cli.add_command(audit.audit)
 
 if __name__ == "__main__":
     cli()

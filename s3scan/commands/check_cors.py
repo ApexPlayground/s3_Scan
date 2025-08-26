@@ -16,7 +16,7 @@ def check_cors(ctx, bucket):
     try:
         response = s3.get_bucket_cors(Bucket=bucket)
         rules = response["CORSRules"]
-        click.echo(f"Rules set to your bucket\n{json.dumps(rules, indent=2)}")
+        click.echo(f"CORS rules set to your bucket\n{json.dumps(rules, indent=2)}")
         
         misconfigured = False
 
