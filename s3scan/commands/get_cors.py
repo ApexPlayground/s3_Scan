@@ -1,4 +1,4 @@
-#check_acl.py
+#check_cors.py
 import click
 import boto3
 
@@ -20,15 +20,16 @@ def check_cors(ctx, bucket):
         misconfigured = False
 
         for rule in rules:
-            danger_methods = ["PUT", "DELETE"]
+            danger_methods = ["PUT", "DELETE", "POST"]
             allows_all_origins = "*" in rule["AllowedOrigins"]
             allows_dangerous_methods = any(method in rule["AllowedMethods"] for method in danger_methods)
             
             if allows_all_origins and allows_dangerous_methods:
                 misconfigured = True
-                click.echo(f"WARNING: Your bucket {bucket} currently allows requests from everyone on the internet and anyone can update or delete content from your bucket."
-                )
-                click.echo(f"Suggestion: Set AllowedOrigins to a specific app or remove PUT/DELETE, if the bucket is meant to be public-read only"
+                click.echo("WARNING: Bucket allows dangerous methods from any origin!")
+                click.echo(
+                    "Suggestion: Restrict AllowedOrigins to your app or remove PUT/POST/DELETE "
+                    "if the bucket is meant to be public-read only."
                 )
             
             # change flag to false
