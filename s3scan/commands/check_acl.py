@@ -3,7 +3,7 @@ import click
 import boto3
 
 @click.command()
-@click.option("--bucket", required=True, help="AWS S3 bucket to check")
+@click.option("--bucket", required=True, help="Name of the S3 bucket to audit for ACL misconfigurations")
 @click.pass_context
 def check_acl(ctx, bucket):
      s3 = boto3.client(
@@ -17,6 +17,7 @@ def check_acl(ctx, bucket):
      try:
           response = s3.get_bucket_acl(Bucket=bucket)
           is_misconfigured = False
+          error_count = 0
           owner_id = response.get("Owner", {}).get("ID")
 
           for grant in response["Grants"]:
@@ -30,27 +31,37 @@ def check_acl(ctx, bucket):
                          click.secho(f"Bucket {bucket} is PUBLIC with permission: {permission}", fg="red", bold=True)
                          click.secho("Suggestion: Set ACL to private using: aws s3api put-bucket-acl --bucket {bucket} --acl private", fg="yellow")
                          is_misconfigured = True
+                         click.echo(" ")
+                         error_count += 1
 
                     elif "AuthenticatedUsers" in uri:
                          click.secho(f"Bucket {bucket} allows access to all authenticated AWS users! Permission: {permission}", fg="red", bold=True)
                          click.secho("Suggestion: Restrict ACL to specific IAM users or roles.", fg="yellow")
                          is_misconfigured = True
+                         click.echo(" ")
+                         error_count += 1
 
-                    # Broad write permissions
+                    # broad write permissions
                     if permission in ["WRITE", "FULL_CONTROL"]:
                          click.secho(f"Bucket {bucket} grants {permission} to a group!", fg="red", bold=True)
                          click.secho("Suggestion: Limit write/delete permissions to specific IAM users or roles.", fg="yellow")
                          is_misconfigured = True
+                         click.echo(" ")
+                         error_count += 1
 
-               # Check owner mismatch for FULL_CONTROL
+               # check owner mismatch for FULL_CONTROL
                elif grantee.get("Type") == "CanonicalUser":
                     if permission == "FULL_CONTROL" and grantee.get("ID") != owner_id:
                          click.secho(f"Bucket {bucket} has FULL_CONTROL granted to non-owner!", fg="red", bold=True)
                          click.secho("Suggestion: Only owner should have FULL_CONTROL.", fg="yellow")
                          is_misconfigured = True
+                         error_count += 1
+                         click.echo(" ")
 
           if not is_misconfigured:
                click.secho(f"Bucket {bucket} appears to be PRIVATE and secure.", fg="green")
 
      except Exception as ex:
           click.secho(f"Unexpected error: {ex}", fg="red", bold=True)
+     
+     return error_count

@@ -3,7 +3,7 @@ import click
 import boto3
 
 @click.command()
-@click.option("--bucket", required=True, help="AWS S3 bucket to check")
+@click.option("--bucket", required=True, help="Name of the S3 bucket to check versioning")
 @click.pass_context
 def check_versioning(ctx, bucket):
     s3 = boto3.client(
@@ -17,19 +17,25 @@ def check_versioning(ctx, bucket):
     try:
         response = s3.get_bucket_versioning(Bucket=bucket)
         status = response.get("Status", "Disabled")
+        error_count = 0
 
         if status == "Enabled":
             click.secho(f"Bucket '{bucket}' has versioning ENABLED.", fg="green", bold=True)
             click.echo(" ")
+            
         elif status == "Suspended":
             click.secho(f"Bucket '{bucket}' has versioning SUSPENDED.", fg="yellow", bold=True)
             click.secho("Suggestion: Enable versioning to protect against accidental deletion/overwrite.", fg="yellow")
             click.echo(" ")
+            error_count += 1
         else:
             click.secho(f"WARNING: Versioning NOT ENABLED for bucket '{bucket}'!", fg="red", bold=True)
             click.secho("Suggestion: Enable versioning using:\n"
                         f"aws s3api put-bucket-versioning --bucket {bucket} --versioning-configuration Status=Enabled", fg="yellow")
             click.echo(" ")
+            error_count += 1
 
     except Exception as ex:
         click.secho(f"Unexpected error: {ex}", fg="red", bold=True)
+    
+    return error_count

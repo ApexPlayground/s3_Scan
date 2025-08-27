@@ -4,7 +4,7 @@ import boto3
 import json
 
 @click.command()
-@click.option("--bucket", required=True, help="AWS s3 bucket to check")
+@click.option("--bucket", required=True, help="Name of the S3 bucket to audit for CORS misconfigurations")
 @click.pass_context
 def check_cors(ctx, bucket):
     s3 = boto3.client("s3", 
@@ -19,6 +19,7 @@ def check_cors(ctx, bucket):
         click.echo(f"CORS rules set to your bucket\n{json.dumps(rules, indent=2)}")
         
         misconfigured = False
+        error_count = 0
 
         for rule in rules:
             danger_methods = ["PUT", "DELETE", "POST"]
@@ -32,6 +33,7 @@ def check_cors(ctx, bucket):
                     "Suggestion: Restrict AllowedOrigins to your app or remove PUT/POST/DELETE "
                     "if the bucket is meant to be public-read only.", fg="yellow"
                 )
+                error_count += 1
                 click.echo(" ")
             
             # all headers allowed
@@ -39,22 +41,24 @@ def check_cors(ctx, bucket):
                 misconfigured = True
                 click.secho("WARNING: All headers allowed!", fg="red", bold=True)
                 click.secho("Suggestion: Restrict AllowedHeaders to only what your app needs.", fg="yellow")
+                error_count += 1
                 click.echo(" ")
                 
             if "*" in rule.get("ExposeHeaders", []):
                 misconfigured = True
                 click.secho("WARNING: All headers exposed to client!", fg="red", bold=True)
+                error_count += 1
                 click.echo(" ")
             
             # long max age
             max_age = rule.get("MaxAgeSeconds", 0)
             if max_age > 3600:  # example threshold
                 click.secho(f"NOTICE: MaxAgeSeconds is very high ({max_age})", fg="yellow")
+                error_count += 1
                 click.echo(" ")
 
 
             
-            # change flag to false
           
         
         if not misconfigured:
@@ -63,5 +67,7 @@ def check_cors(ctx, bucket):
     
     except Exception as ex:
         click.echo(f"Unexpected error:{ex}", fg="red", bold="True")
+
+    return error_count
     
         
