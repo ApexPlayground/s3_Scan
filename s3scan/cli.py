@@ -1,8 +1,8 @@
 # cli.py
 import click
-from commands import check_acl, check_cors, check_policy, check_versioning
-from commands import list_all_buckets
-from commands import audit
+from .commands import check_acl, check_cors, check_policy, check_versioning
+from .commands import list_all_buckets
+from .commands import audit
 
 @click.group()
 @click.option("--endpoint-url", default="http://localhost:4566", required=True, help="LocalStack endpoint")

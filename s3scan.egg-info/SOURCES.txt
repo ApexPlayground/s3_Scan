@@ -1,0 +1,16 @@
+pyproject.toml
+s3scan/__init__.py
+s3scan/cli.py
+s3scan.egg-info/PKG-INFO
+s3scan.egg-info/SOURCES.txt
+s3scan.egg-info/dependency_links.txt
+s3scan.egg-info/entry_points.txt
+s3scan.egg-info/requires.txt
+s3scan.egg-info/top_level.txt
+s3scan/commands/__init__.py
+s3scan/commands/audit.py
+s3scan/commands/check_acl.py
+s3scan/commands/check_cors.py
+s3scan/commands/check_policy.py
+s3scan/commands/check_versioning.py
+s3scan/commands/list_all_buckets.py

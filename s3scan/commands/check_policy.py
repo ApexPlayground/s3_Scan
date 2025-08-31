@@ -7,6 +7,7 @@ import json
 @click.option("--bucket", required=True, help="Name of the S3 bucket to check policy misconfiguration")
 @click.pass_context
 def check_policy(ctx, bucket):
+    error_count = 0
     s3 = boto3.client("s3", 
                     endpoint_url=ctx.obj["endpoint_url"],
                     region_name=ctx.obj["region"],
@@ -19,7 +20,7 @@ def check_policy(ctx, bucket):
         click.echo(f"Policy set on bucket with name {bucket}:\n {json.dumps(policy, indent=2)}")
         
         misconfigured = False
-        error_count = 0
+        
         
         for val in policy.get("Statement", []):
             effect = val.get("Effect", "")

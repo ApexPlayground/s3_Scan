@@ -1,0 +1,9 @@
+Metadata-Version: 2.4
+Name: s3scan
+Version: 0.1.0
+Summary: A CLI application that scans for s3 buckets misconfiguration in AWS
+Author-email: Divine Eboigbe <ogbedivine7@gmail.com>
+Description-Content-Type: text/markdown
+Requires-Dist: boto3==1.40.12
+Requires-Dist: botocore==1.40.12
+Requires-Dist: click==8.2.1

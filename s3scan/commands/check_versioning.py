@@ -6,6 +6,7 @@ import boto3
 @click.option("--bucket", required=True, help="Name of the S3 bucket to check versioning")
 @click.pass_context
 def check_versioning(ctx, bucket):
+    error_count = 0
     s3 = boto3.client(
         "s3",
         endpoint_url=ctx.obj["endpoint_url"],
@@ -17,7 +18,7 @@ def check_versioning(ctx, bucket):
     try:
         response = s3.get_bucket_versioning(Bucket=bucket)
         status = response.get("Status", "Disabled")
-        error_count = 0
+       
 
         if status == "Enabled":
             click.secho(f"Bucket '{bucket}' has versioning ENABLED.", fg="green", bold=True)

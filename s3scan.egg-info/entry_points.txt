@@ -1,0 +1,2 @@
+[console_scripts]
+s3scan = s3scan.cli:cli

@@ -8,15 +8,11 @@ version = "0.1.0"
 description = "A CLI application that scans for s3 buckets misconfiguration in AWS"
 readme = "README.md"
 authors = [{ name = "Divine Eboigbe", email = "ogbedivine7@gmail.com" }]
-dependencies = [
-    "boto3==1.40.12",
-    "botocore==1.40.12",
-    "click==8.2.1"
-]
+dependencies = ["boto3==1.40.12", "botocore==1.40.12", "click==8.2.1"]
 
-[tool.setuptools.packages.find]
-where = ["s3scan"]  
-exclude = ["myenv*"] 
+# [tool.setuptools.packages.find]
+# where = ["s3scan"]  
+# exclude = ["myenv*"] 
 
 [project.scripts]
 s3scan = "s3scan.cli:cli"

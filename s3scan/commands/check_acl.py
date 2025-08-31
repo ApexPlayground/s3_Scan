@@ -6,6 +6,7 @@ import boto3
 @click.option("--bucket", required=True, help="Name of the S3 bucket to audit for ACL misconfigurations")
 @click.pass_context
 def check_acl(ctx, bucket):
+     error_count = 0
      s3 = boto3.client(
           "s3",
           endpoint_url=ctx.obj["endpoint_url"],
@@ -17,7 +18,6 @@ def check_acl(ctx, bucket):
      try:
           response = s3.get_bucket_acl(Bucket=bucket)
           is_misconfigured = False
-          error_count = 0
           owner_id = response.get("Owner", {}).get("ID")
 
           for grant in response["Grants"]:

@@ -7,6 +7,7 @@ import json
 @click.option("--bucket", required=True, help="Name of the S3 bucket to audit for CORS misconfigurations")
 @click.pass_context
 def check_cors(ctx, bucket):
+    error_count = 0
     s3 = boto3.client("s3", 
                     endpoint_url=ctx.obj["endpoint_url"],
                     region_name=ctx.obj["region"],
@@ -19,7 +20,7 @@ def check_cors(ctx, bucket):
         click.echo(f"CORS rules set to your bucket\n{json.dumps(rules, indent=2)}")
         
         misconfigured = False
-        error_count = 0
+        
 
         for rule in rules:
             danger_methods = ["PUT", "DELETE", "POST"]
@@ -66,7 +67,7 @@ def check_cors(ctx, bucket):
             
     
     except Exception as ex:
-        click.echo(f"Unexpected error:{ex}", fg="red", bold="True")
+        click.secho(f"Unexpected error:{ex}", fg="red", bold="True")
 
     return error_count
     
