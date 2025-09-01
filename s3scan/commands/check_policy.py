@@ -7,6 +7,7 @@ import json
 @click.option("--bucket", required=True, help="Name of the S3 bucket to check policy misconfiguration")
 @click.pass_context
 def check_policy(ctx, bucket):
+    """Check for Policy misconfiguration"""
     error_count = 0
     s3 = boto3.client("s3", 
                     endpoint_url=ctx.obj["endpoint_url"],
@@ -81,9 +82,12 @@ def check_policy(ctx, bucket):
             
         if not misconfigured:
             click.secho("policy configuration looks good", fg="green")
+            click.echo(" ")
         
     except Exception as ex:
-        click.echo(f"Unexpected error: {ex}")
+        click.secho(f"Unexpected error: {ex}", fg="red", bold=True)
+        error_count += 1
+        click.echo(" ")
     
     return error_count
         

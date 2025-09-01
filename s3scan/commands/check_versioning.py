@@ -6,6 +6,7 @@ import boto3
 @click.option("--bucket", required=True, help="Name of the S3 bucket to check versioning")
 @click.pass_context
 def check_versioning(ctx, bucket):
+    """Check versioning"""
     error_count = 0
     s3 = boto3.client(
         "s3",
@@ -38,5 +39,7 @@ def check_versioning(ctx, bucket):
 
     except Exception as ex:
         click.secho(f"Unexpected error: {ex}", fg="red", bold=True)
+        error_count += 1
+        click.echo(" ")
     
     return error_count
